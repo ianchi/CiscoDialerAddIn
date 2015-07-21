@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="Ribbon_Load">
+
+  <ribbon>
+    <tabs>
+      <tab idMso="TabMail">
+        <group id="IanchiDialer" label="Dialer" >
+          <editBox id="Ianchi_Dialer_txtPhoneNumber" imageMso="Call" sizeString="+00991234567800" 
+                   supertip="Type number to dial with Cisco IP Phone" 
+                   getEnabled="getEnabledCalls"
+                   onChange="OnPhoneChange" getText="GetLastNumber"
+                   
+                   label="Dial" showLabel="false" showImage="false" />
+          <button id="Ianchi_Dialer_Speaker" label="Speaker on/off" imageMso="Call"  screentip="Speaker on/off"
+                  getEnabled="getEnabledCalls"
+                  onAction="Ianchi_Dialer_SendKey" tag="Speaker"/>
+          <dialogBoxLauncher >
+            <button id="IanchiDialer__btn" onAction="DialogLauncherClick" />
+          </dialogBoxLauncher>
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+
+
+  <contextMenus>
+    <contextMenu idMso="ContextMenuContactsMoreActions">
+      <dynamicMenu id="Ianchi_CiscoDial_MoreActions" label="Call with Cisco" imageMso="Call"
+        getContent="getPhonesMenuExplorer" getEnabled="getEnabledCallsExplorer"/>
+    </contextMenu>
+
+
+  </contextMenus>
+</customUI>
+

@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="Ribbon_Load">
+  <contextMenus>
+    <contextMenu idMso="ContextMenuContactCardRecipient">
+      <dynamicMenu id="Ianchi_CiscoDial_Recipient" label="Call with Cisco" imageMso="Call"
+        getContent="getPhonesMenuContactCard" getEnabled="getEnabledCalls"  />
+    </contextMenu>
+
+    <contextMenu idMso="ContextMenuContactCardOverflowDropdown">
+      <dynamicMenu id="Ianchi_CiscoDial_Overflow" label="Call with Cisco" imageMso="Call"
+        getContent="getPhonesMenuContactCard" getEnabled="getEnabledCalls"/>
+    </contextMenu>
+
+    <contextMenu idMso="ContextMenuContactsMoreActions">
+      <dynamicMenu id="Ianchi_CiscoDial_MoreActions" label="Call with Cisco" imageMso="Call"
+        getContent="getPhonesMenuContact" getEnabled="getEnabledCalls"/>
+    </contextMenu>
+
+   
+  </contextMenus>
+</customUI>
+
