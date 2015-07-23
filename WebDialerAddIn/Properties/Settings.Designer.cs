@@ -26,39 +26,25 @@ namespace Ianchi.WebDialerAddIn.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Configuration.SettingsProviderAttribute(typeof(Ianchi.RegistrySettingsProvider.RegistrySettingsProvider))]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string User {
+        public global::Ianchi.WebDialerAddIn.PhoneList PhoneList {
             get {
-                return ((string)(this["User"]));
+                return ((global::Ianchi.WebDialerAddIn.PhoneList)(this["PhoneList"]));
             }
             set {
-                this["User"] = value;
+                this["PhoneList"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Configuration.SettingsProviderAttribute(typeof(Ianchi.RegistrySettingsProvider.RegistrySettingsProvider))]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string Password {
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int SelectedPhone {
             get {
-                return ((string)(this["Password"]));
+                return ((int)(this["SelectedPhone"]));
             }
             set {
-                this["Password"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Configuration.SettingsProviderAttribute(typeof(Ianchi.RegistrySettingsProvider.RegistrySettingsProvider))]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string Url {
-            get {
-                return ((string)(this["Url"]));
-            }
-            set {
-                this["Url"] = value;
+                this["SelectedPhone"] = value;
             }
         }
     }

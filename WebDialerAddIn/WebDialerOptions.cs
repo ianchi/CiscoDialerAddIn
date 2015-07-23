@@ -17,52 +17,78 @@ namespace Ianchi.WebDialerAddIn
     [ComVisible(true)]
     public partial class WebDialerOptions : UserControl, Outlook.PropertyPage
     {
-        private bool isDirty;
+        private bool _isDirty;
         Outlook.PropertyPageSite _PropertyPageSite;
 
-        private CiscoPhone phone=new CiscoPhone();
-        private CiscoPhone appPhone;
+        private PhoneList phoneList;
+        private BindingSource sourceProfile;
 
 
         public WebDialerOptions()
         {
             InitializeComponent();
+            
+            phoneList = new PhoneList(Globals.WebDialerAddIn.phoneList);
+
+            if (phoneList.Count == 0)
+                phoneList.Add(newPhone());
         }
 
-        public WebDialerOptions(CiscoPhone phoneApp)
+        private void testConnection()
         {
-            InitializeComponent();
-            setAppPhone(phoneApp);
+            CiscoPhone phone = (CiscoPhone)sourceProfile.Current;
+            if (phone == null)
+            {
+                txtStatus.Text = "No profile";
+                webBrowser.Visible = false;
+            }
+            else try
+                {
+                    phone.checkConnection();
+                    txtStatus.Text = "Connection successful";
+                    phone.navigateScreenShot(webBrowser);
+                    webBrowser.Visible = true;
+                }
+                catch (Exception x)
+                {
+                    txtStatus.Text = x.Message;
+                    webBrowser.Visible = false;
+                }
 
+            tipStatus.SetToolTip(txtStatus, txtStatus.Text);
         }
 
-        public void setAppPhone(CiscoPhone phoneApp) {
-            //stores reference to applications phone to return parameters on apply
-            appPhone = phoneApp;
+        #region PropertyPage Interface
 
-            if (phoneApp == null) return;
+        public bool Dirty { 
+            get { return _isDirty; } 
+            set { 
+                _isDirty = value;
 
-            phone.phoneIP = appPhone.phoneIP;
-            phone.user = appPhone.user;
-            phone.password = appPhone.password;
-            phone.checkConnection(false);
-        
-        }
+                if (value)
+                {
+                    txtStatus.Text = "Connection not tested";
+                    webBrowser.Visible = false;
+                }
+            
+            } }
 
-        //PropertyPage Interface
-        public bool Dirty { get { return isDirty; }}
         public void Apply() {
+            if (!Dirty) return;
 
-            //persist options
-            Properties.Settings.Default.Save();
+            phoneList.SelectedIndex = cboProfile.SelectedIndex;
+            if (phoneList.SelectedIndex >= 0)
+                phoneList.SelectedPhone.checkConnection(false);
 
             //transfers options to applications phone
-
-            appPhone.phoneIP    = phone.phoneIP;
-            appPhone.user       = phone.user;
-            appPhone.password   = phone.password;
-            appPhone.checkConnection();
-
+            //and persist 
+            Globals.WebDialerAddIn.phoneList = new PhoneList(phoneList);
+            Properties.Settings.Default.Save();
+            Globals.CustomRibbon.Invalidate();
+            
+            
+            Dirty = false;
+            
             }
         
         public void GetPageInfo(ref string helpFile, ref int helpContext) { }
@@ -99,53 +125,33 @@ namespace Ianchi.WebDialerAddIn
         /// <param name="isDirty"></param>
         void OnDirty(bool status)
         {
-            isDirty = status;
+            _isDirty = status;
 
             // When this Method is called, the PageSite checks for Dirty Flag of all Optionspages.
             if (_PropertyPageSite!=null)
                 _PropertyPageSite.OnStatusChange();
         }
 
+        #endregion
 
-        //Form Event Handlers
+        #region Event Handlers
 
-        private void txtUrl_TextChanged(object sender, EventArgs e)
-        {
-            isDirty = true;
-        }
+        private void txtUrl_TextChanged(object sender, EventArgs e) { Dirty = true;}
 
-        private void txtUser_TextChanged(object sender, EventArgs e)
-        {
-            isDirty = true;
-        }
+        private void txtUser_TextChanged(object sender, EventArgs e) { Dirty = true;}
 
-        private void txtPassword_TextChanged(object sender, EventArgs e)
-        {
-            isDirty = true;
-        }
+        private void txtPassword_TextChanged(object sender, EventArgs e) { Dirty = true;}
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
             
             //if no new parameters don't do anything
-            if (!isDirty) return;
+            if (!Dirty) return;
             UseWaitCursor = true;
             
-            try
-            {
-                phone.phoneIP=txtUrl.Text;
-                phone.user=txtUser.Text;
-                phone.password=txtPassword.Text;
-                phone.checkConnection();
-                txtStatus.Text = "Connection successful";
-                phone.navigateScreenShot(webBrowser);
-            }
-            catch (Exception x)
-            {
-                txtStatus.Text = x.Message;
-                webBrowser.Navigate("about:blank");
-            }
-            tipStatus.SetToolTip(txtStatus, txtStatus.Text);
+            testConnection();
+
+            
             UseWaitCursor = false;
 
             OnDirty(true);
@@ -156,13 +162,78 @@ namespace Ianchi.WebDialerAddIn
         {
             _PropertyPageSite = GetPropertyPageSite();
 
-            if (phone.isChecked)
+            //Databinding
+            sourceProfile = new BindingSource();
+            sourceProfile.DataSource = phoneList;
+
+            int selected=phoneList.SelectedIndex;
+            cboProfile.DataSource = sourceProfile;
+            cboProfile.DisplayMember = "description";
+            cboProfile.SelectedIndex = selected;
+
+            txtUrl.DataBindings.Add(new Binding("Text", sourceProfile, "phoneIP"));
+            txtUser.DataBindings.Add(new Binding("Text", sourceProfile, "user"));
+            txtPassword.DataBindings.Add(new Binding("Text", sourceProfile, "password"));
+
+            testConnection();
+            Dirty = false;
+        }
+
+        #endregion
+
+        #region Profile Management Events
+
+        private void cboProfile_SelectedIndexChanged(object sender, EventArgs e) { Dirty = true; }
+
+        private void cboProfile_Validating(object sender, CancelEventArgs e)
+        {
+            if (sourceProfile.Current == null) return;
+            CiscoPhone current = (CiscoPhone)sourceProfile.Current;
+
+            //if there was a change
+            if (current.description != cboProfile.Text)
             {
-                txtStatus.Text = "Connection successful";
-                phone.navigateScreenShot(webBrowser);
+                current.description = cboProfile.Text;
+                sourceProfile.ResetCurrentItem();
+                _isDirty = true;
             }
         }
 
-   
+
+        private CiscoPhone newPhone()
+        {
+            CiscoPhone newPhone = new CiscoPhone();
+
+            newPhone.phoneIP = txtUrl.Text;
+            newPhone.user = txtUser.Text;
+            newPhone.password = txtPassword.Text;
+            newPhone.description = String.Format("New Profile N° {0}", phoneList.Count + 1);
+
+            return newPhone;
+        }
+
+        private void btnNew_Click(object sender, EventArgs e)
+        {
+            sourceProfile.Add(newPhone());
+            cboProfile.SelectedIndex = cboProfile.Items.Count - 1;
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            sourceProfile.RemoveCurrent();
+
+            if (phoneList.Count == 0)
+            {
+                sourceProfile.Add(newPhone());
+                cboProfile.SelectedIndex = cboProfile.Items.Count - 1;
+            }
+
+        }
+
+        #endregion
+
+
+
+
     }
 }

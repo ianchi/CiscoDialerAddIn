@@ -22,7 +22,6 @@ using System.Windows.Forms;
 using System.Collections.Specialized;
 using Microsoft.Win32;
 using System.Reflection;
-using System.Security.Cryptography;
 
 // NOTE: This provider uses Assembly metadata such as ProductName, etc. 
 // to determine a workable registry path in which to store settings. 
@@ -35,7 +34,6 @@ namespace Ianchi.RegistrySettingsProvider
     class RegistrySettingsProvider : SettingsProvider
     {
 
-        static byte[] salt = Encoding.Unicode.GetBytes("10635AF2-96CC-40C4-8FE7-4E0A9D5C2800");
 
         public RegistrySettingsProvider()
         {
@@ -68,7 +66,7 @@ namespace Ianchi.RegistrySettingsProvider
                 // LocalFileSettingsProvider - is read-only for application-scoped setting. This 
                 // is an example of a policy that a provider may need to enforce for implementation,
                 // security or other reasons.
-                GetRegKey(propval.Property).SetValue(propval.Name, Encrypt((string)propval.SerializedValue));
+                GetRegKey(propval.Property).SetValue(propval.Name, (string)propval.SerializedValue);
             }
         }
 
@@ -83,7 +81,7 @@ namespace Ianchi.RegistrySettingsProvider
             {
                 SettingsPropertyValue value = new SettingsPropertyValue(setting);
                 value.IsDirty = false;
-                value.SerializedValue = Decrypt((string)GetRegKey(setting).GetValue(setting.Name));
+                value.SerializedValue = (string)GetRegKey(setting).GetValue(setting.Name);
                 values.Add(value);
             }
             return values;
@@ -140,21 +138,6 @@ namespace Ianchi.RegistrySettingsProvider
         }
 
 
-        private string Encrypt(string data)
-        {
-            byte[] encrypted = ProtectedData.Protect(Encoding.Unicode.GetBytes(data), salt, DataProtectionScope.CurrentUser);
-
-            return Convert.ToBase64String(encrypted);
-        }
-
-
-        private string Decrypt(string data)
-        {
-            byte[] decrypted = ProtectedData.Unprotect(Convert.FromBase64String(data), salt, DataProtectionScope.CurrentUser);
-
-            return Encoding.Unicode.GetString(decrypted);
-
-        }
         
  
     }

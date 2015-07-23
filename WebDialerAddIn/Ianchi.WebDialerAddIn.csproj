@@ -35,7 +35,7 @@
     <PublishUrl>publish\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.2</ApplicationVersion>
+    <ApplicationVersion>1.0.0.3</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>false</UpdateEnabled>
     <UpdateInterval>0</UpdateInterval>
@@ -43,8 +43,8 @@
     <ProductName>WebDialerAddIn</ProductName>
     <PublisherName>Adrian Panella</PublisherName>
     <SupportUrl />
-    <FriendlyName>WebDialerAddIn</FriendlyName>
-    <OfficeApplicationDescription>Cisco Web Dialer Add In for Outlook</OfficeApplicationDescription>
+    <FriendlyName>Cisco Dialer Add-in</FriendlyName>
+    <OfficeApplicationDescription>Cisco Dialer Add In for Outlook</OfficeApplicationDescription>
     <LoadBehavior>3</LoadBehavior>
   </PropertyGroup>
   <ItemGroup>
@@ -222,7 +222,6 @@
     <EmbeddedResource Include="WebDialerOptions.resx">
       <DependentUpon>WebDialerOptions.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -251,6 +250,12 @@
   <ItemGroup>
     <EmbeddedResource Include="CustomRibbonExplorer.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\SlideNew.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\SlideDelete.bmp" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -274,7 +279,7 @@
       <FlavorProperties GUID="{BAA0C2D2-18E2-41B9-852F-F413020CAA33}">
         <ProjectProperties HostName="Outlook" HostPackage="{20A848B8-E01F-4801-962E-25DB0FF57389}" OfficeVersion="14.0" VstxVersion="4.0" ApplicationType="Outlook" Language="cs" TemplatesPath="" DebugInfoExeName="#Software\Microsoft\Office\14.0\Outlook\InstallRoot\Path#outlook.exe" AddItemTemplatesGuid="{A58A78EB-1C92-4DDD-80CF-E8BD872ABFC4}" />
         <Host Name="Outlook" GeneratedCodeNamespace="Ianchi.WebDialerAddIn" PublishedHash="69C324AB27932AA2FBF2B7EA72250886FF164DE6" IconIndex="0">
-          <HostItem Name="ThisAddIn" Code="WebDialerAddIn.cs" CanonicalName="AddIn" CanActivate="false" IconIndex="1" Blueprint="WebDialerAddIn.Designer.xml" GeneratedCode="WebDialerAddIn.Designer.cs" PublishedHash="A90A2B7484B96129368AEFA0391221333A04E879" />
+          <HostItem Name="ThisAddIn" Code="WebDialerAddIn.cs" CanonicalName="AddIn" PublishedHash="1C232C92B86DD298480EAA9F3AD968D79CBB354E" CanActivate="false" IconIndex="1" Blueprint="WebDialerAddIn.Designer.xml" GeneratedCode="WebDialerAddIn.Designer.cs" />
         </Host>
       </FlavorProperties>
     </VisualStudio>

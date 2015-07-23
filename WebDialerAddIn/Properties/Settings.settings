@@ -2,14 +2,11 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Ianchi.WebDialerAddIn.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="User" Provider="Ianchi.RegistrySettingsProvider.RegistrySettingsProvider" Type="System.String" Scope="User">
+    <Setting Name="PhoneList" Provider="Ianchi.RegistrySettingsProvider.RegistrySettingsProvider" Type="Ianchi.WebDialerAddIn.PhoneList" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="Password" Provider="Ianchi.RegistrySettingsProvider.RegistrySettingsProvider" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="Url" Provider="Ianchi.RegistrySettingsProvider.RegistrySettingsProvider" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+    <Setting Name="SelectedPhone" Provider="Ianchi.RegistrySettingsProvider.RegistrySettingsProvider" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">-1</Value>
     </Setting>
   </Settings>
 </SettingsFile>

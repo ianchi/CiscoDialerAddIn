@@ -77,12 +77,23 @@ namespace Ianchi.WebDialerAddIn
 
         #endregion
 
-        #region Ribbon Callbacks
- 
+        #region General
+
         public void Ribbon_Load(Office.IRibbonUI ribbonUI)
         {
             this.ribbon = ribbonUI;
+            Globals.CustomRibbon = this;
         }
+
+        public void Invalidate()
+        {
+            if (ribbon != null)
+                ribbon.Invalidate();
+        }
+
+        #endregion
+
+        #region Context Menu callbacks
 
         public bool getEnabledCalls(Office.IRibbonControl control) {
             return Globals.WebDialerAddIn.isChecked;
@@ -91,32 +102,6 @@ namespace Ianchi.WebDialerAddIn
         public bool getEnabledCallsExplorer(Office.IRibbonControl control)
         {
             return Globals.WebDialerAddIn.isChecked && control.Context.Selection.Count == 1;
-        }
-
-        public void dialCallback(Office.IRibbonControl control)
-        {
-            try
-            {
-                lastNumber = control.Tag;
-                ribbon.InvalidateControl("Ianchi_Dialer_txtPhoneNumber");
-                Globals.WebDialerAddIn.call(control.Tag);
-            }
-            catch { }
-        }
-
-        public void Ianchi_Dialer_SendKey(Office.IRibbonControl control) {
-            try
-            {
-                if (control.Tag.Length > 0)
-                    Globals.WebDialerAddIn.sendKey(control.Tag);
-            }
-            catch { }
-
-        }
-
-        public string GetLastNumber(Office.IRibbonControl control)
-        {
-            return lastNumber;
         }
 
         public string getPhonesMenuExplorer(Office.IRibbonControl control)
@@ -150,7 +135,6 @@ namespace Ianchi.WebDialerAddIn
 
             return xml;
         }
-
 
         public string getPhonesMenuContactCard(Office.IRibbonControl control)
         {
@@ -199,22 +183,96 @@ namespace Ianchi.WebDialerAddIn
             xml += "</menu>";
             return xml;
         }
+   
+        public void dialCallback(Office.IRibbonControl control)
+        {
+            try
+            {
+                lastNumber = control.Tag;
+                ribbon.InvalidateControl("Ianchi_Dialer_txtPhoneNumber");
+                Globals.WebDialerAddIn.call(control.Tag);
+            }
+            catch { }
+        }
+        
+        #endregion
+
+        #region Main Ribbon Callbacks
 
         public void OnPhoneChange(Office.IRibbonControl control, string number)
         {
-            try { Globals.WebDialerAddIn.call(number); }
-            catch {}
-            
+            try {
+                lastNumber = number;
+                Globals.WebDialerAddIn.call(number); }
+            catch { }
+
+        }
+
+        public void Ianchi_Dialer_SendKey(Office.IRibbonControl control)
+        {
+            try
+            {
+                if (control.Tag.Length > 0)
+                    Globals.WebDialerAddIn.sendKey(control.Tag);
+            }
+            catch { }
+
         }
 
         public void DialogLauncherClick(Office.IRibbonControl control)
         {
             
             frmDialerOptions dlg = new frmDialerOptions();
-            dlg.webDialerOptions.setAppPhone(Globals.WebDialerAddIn.phone);
 
             dlg.ShowDialog();
 
+        }
+
+        public string GetLastNumber(Office.IRibbonControl control)
+        {
+            return lastNumber;
+        }
+
+        #endregion
+
+        #region Profile Selector Callbacks 
+
+        public int GetProfileCount(Office.IRibbonControl control)
+        {
+            return Globals.WebDialerAddIn.phoneList.Count;
+        }
+
+        public int GetSelectedProfileIndex(Office.IRibbonControl control)
+        {
+            return Globals.WebDialerAddIn.phoneList.SelectedIndex;
+        }
+
+        public string GetProfileLabel(Office.IRibbonControl control, int index)
+        {
+            return Globals.WebDialerAddIn.phoneList[index].description;
+        }
+
+        public string GetProfileID(Office.IRibbonControl control, int index)
+        {
+            return String.Format("Ianchi_Dialer_Profile_{0}", index);
+        }
+
+        public void OnSelectProfile(Office.IRibbonControl control,string selectedId, int selectedIndex)
+        {
+            Globals.WebDialerAddIn.phoneList.SelectedIndex = selectedIndex;
+            Globals.WebDialerAddIn.phoneList.SelectedPhone.checkConnection(false);
+            ribbon.Invalidate();
+
+        }
+
+        public bool getEnabledProfile(Office.IRibbonControl control) {
+            return Globals.WebDialerAddIn.phoneList.Count > 1;
+        }
+       
+
+        public string GetProfileSupertip(Office.IRibbonControl control)
+        {
+            return "Current profile: " + (Globals.WebDialerAddIn.phoneList.SelectedPhone != null ? Globals.WebDialerAddIn.phoneList.SelectedPhone.description : "");
         }
 
         #endregion
@@ -225,7 +283,7 @@ namespace Ianchi.WebDialerAddIn
         /// Returns an xml formated string of buttons with the active phones stored in the contact
         /// to add to a dynamicMenu
         /// </summary>
-        private static string getButtonsXml(object contact, PhoneList phoneProperties, string sufix)
+        private static string getButtonsXml(object contact, PhoneProperties phoneProperties, string sufix)
         {
             string xml = "";
 
@@ -266,7 +324,7 @@ namespace Ianchi.WebDialerAddIn
         #endregion
 
         #region List of Outlook Phone Properties
-        PhoneList outlookPhoneProperties = new PhoneList {
+        PhoneProperties outlookPhoneProperties = new PhoneProperties {
                         {"AssistantTelephoneNumber", "ContactCardCallWork", "Assistant"},
                         {"Business2TelephoneNumber", "ContactCardCallWork", "Work 2"},
                         {"BusinessFaxNumber", null, "Business Fax"},
@@ -287,7 +345,7 @@ namespace Ianchi.WebDialerAddIn
                         {"TelexNumber", null, "Telex"},
                         {"TTYTDDTelephoneNumber", null, "TTY/TDD"}};
 
-        PhoneList exchangePhoneProperties = new PhoneList {
+        PhoneProperties exchangePhoneProperties = new PhoneProperties {
                             {"BusinessTelephoneNumber", "ContactCardCallWork", "Work"},
                             {"MobileTelephoneNumber", "ContactCardCallMobile", "Mobile"}};
 
@@ -298,11 +356,20 @@ namespace Ianchi.WebDialerAddIn
 
 
     /// <summary>
+    /// Extends Globals to have easy access to customribbon
+    /// </summary>
+    internal sealed partial class Globals
+    {
+        public static CustomRibbon CustomRibbon;
+
+    }
+
+    /// <summary>
     /// Auxiliary class to allow {} initialization of List of Phone Properties
     /// In the form of PropertyName, officeImageID, Description
     /// </summary>
 
-    public class PhoneList : SortedList<string,Tuple<string, string, string>>
+    internal class PhoneProperties : SortedList<string,Tuple<string, string, string>>
     {
         public void Add(string item1, string item2, string item3)
         {

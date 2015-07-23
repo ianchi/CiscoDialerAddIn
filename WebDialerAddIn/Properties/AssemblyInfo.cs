@@ -6,11 +6,11 @@ using System.Security;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("WebDialer Outlook AddIn")]
-[assembly: AssemblyDescription("Cisco Web Dialer AddIn for Outlook")]
+[assembly: AssemblyTitle("Cisco Dialer AddIn for Outlook")]
+[assembly: AssemblyDescription("Cisco Dialer AddIn for Outlook")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Ianchi")]
-[assembly: AssemblyProduct("WebDialerAddIn")]
+[assembly: AssemblyProduct("Cisco Dialer AddIn")]
 [assembly: AssemblyCopyright("Copyright © Adrian Panella 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

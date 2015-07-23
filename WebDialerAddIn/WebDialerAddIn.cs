@@ -35,11 +35,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Office = Microsoft.Office.Core;
+using System.Security.Permissions;
+using System.Runtime.Serialization;
+
 
 #endregion
 
@@ -53,15 +58,31 @@ namespace Ianchi.WebDialerAddIn
         #region Private Variables
 
         WebDialerOptions optionsPane;
-        public CiscoPhone phone = new CiscoPhone();
+        PhoneList _phoneList;
+
 
         #endregion
 
         #region Phone API
         
-        public void call(string number) { phone.call(number); }
-        public void sendKey(string key) { phone.sendCommand("Key:" + key); }
-        public bool isChecked { get { return phone.isChecked; } }
+        public void call(string number) { 
+            if(_phoneList.SelectedPhone != null)
+                _phoneList.SelectedPhone.call(number);
+        }
+        public void sendKey(string key) {
+            if (_phoneList.SelectedPhone != null)
+                _phoneList.SelectedPhone.sendCommand("Key:" + key);
+        }
+        public bool isChecked { get { return _phoneList.SelectedPhone != null && _phoneList.SelectedPhone.isChecked; } }
+        public CiscoPhone phone { get { return _phoneList.SelectedPhone; } }
+        public PhoneList phoneList { 
+            get { return _phoneList; } 
+            set { 
+                _phoneList = value; 
+                Properties.Settings.Default.PhoneList = value;
+                Properties.Settings.Default.SelectedPhone = value.SelectedIndex;
+            } }
+
         
 
         #endregion
@@ -75,11 +96,23 @@ namespace Ianchi.WebDialerAddIn
             //  Add Options Pane
             Globals.WebDialerAddIn.Application.OptionsPagesAdd += new Outlook.ApplicationEvents_11_OptionsPagesAddEventHandler(Application_OptionsPagesAdd);      
 
-            // initializes phone from user's settings
-            phone.phoneIP = Properties.Settings.Default.Url;
-            phone.user = Properties.Settings.Default.User;
-            phone.password = Properties.Settings.Default.Password;
-            phone.checkConnection(false);
+            // initializes phone from user's settings, if none adds empty list
+            _phoneList = Properties.Settings.Default.PhoneList;
+
+            if (_phoneList == null)
+            {
+                _phoneList=new PhoneList();
+                Properties.Settings.Default.PhoneList = _phoneList;
+            }
+
+
+            _phoneList.SelectedIndex = Properties.Settings.Default.SelectedPhone >= _phoneList.Count ? -1 : Properties.Settings.Default.SelectedPhone;
+
+            if (_phoneList.Count > 0 && _phoneList.SelectedIndex < 0) _phoneList.SelectedIndex = 0;
+
+            if(_phoneList.SelectedPhone != null)
+                _phoneList.SelectedPhone.checkConnection(false);
+
 
         }
 
@@ -92,7 +125,7 @@ namespace Ianchi.WebDialerAddIn
         void Application_OptionsPagesAdd(Outlook.PropertyPages Pages)
         {
             //creates Options Page, with referenc to phone object, for storing final preferences
-            optionsPane=new WebDialerOptions(phone);
+            optionsPane=new WebDialerOptions();
             Pages.Add(optionsPane, "");
         }
 
@@ -118,4 +151,35 @@ namespace Ianchi.WebDialerAddIn
         
         #endregion
     }
+
+    [XmlRoot("PhoneList")]
+    public class PhoneList : BindingList<CiscoPhone> 
+    {
+        int _selectedIndex =-1;
+        
+
+        public PhoneList() { }
+
+        public PhoneList(PhoneList from)
+            : base(from)
+        {
+            this.SelectedIndex = from.SelectedIndex >= this.Count ? -1 : from.SelectedIndex;
+        }
+
+        public int SelectedIndex { 
+            get {return _selectedIndex >= Count ? -1 : _selectedIndex;}
+            set { 
+                if(value<0) {
+                    _selectedIndex=-1;
+                }
+                else
+                {
+                    _selectedIndex = value;
+                }
+            } }
+
+        public CiscoPhone SelectedPhone { get { return _selectedIndex >= Count || _selectedIndex<0 ? null : this[_selectedIndex]; } }
+
+    }
+
 }
