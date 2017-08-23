@@ -174,7 +174,7 @@ namespace Ianchi.WebDialerAddIn
                     if (contactExchange != null)
                     {
                         xml += "<menuSeparator id=\"Inachi_Dialer_separator_EX\" title=\"Exchange\" />";
-                        xml += getButtonsXml(contactExchange, exchangePhoneProperties, "EX");
+                        xml += getButtonsXml(contactExchange, mapiPhoneProperties, "MAPI");
                     }
                 }
             }
@@ -290,8 +290,19 @@ namespace Ianchi.WebDialerAddIn
             string number;
             foreach (var phone in phoneProperties)
             {
-                number = (string)contact.GetType().InvokeMember(phone.Value.Item1, BindingFlags.GetProperty, null, contact, null);
-
+                if (sufix == "MAPI")
+                {
+                    try
+                    {
+                        number = ((Outlook.ExchangeUser)contact).PropertyAccessor.GetProperty(String.Format("http://schemas.microsoft.com/mapi/proptag/0x{0}", phone.Value.Item1));
+                    } catch {
+                        number = null;
+                    }
+                }
+                else
+                {
+                    number = (string)contact.GetType().InvokeMember(phone.Value.Item1, BindingFlags.GetProperty, null, contact, null);
+                }
                 if (number != null && number.Length > 0)
                 {
                     xml += String.Format("<button id=\"Ianchi_Dialer_{0}_{4}\" label=\"Call {2} {3}\" {1} tag=\"{3}\" onAction=\"dialCallback\" />",
@@ -348,6 +359,27 @@ namespace Ianchi.WebDialerAddIn
         PhoneProperties exchangePhoneProperties = new PhoneProperties {
                             {"BusinessTelephoneNumber", "ContactCardCallWork", "Work"},
                             {"MobileTelephoneNumber", "ContactCardCallMobile", "Mobile"}};
+
+        PhoneProperties mapiPhoneProperties = new PhoneProperties {
+                        {"3A2E001E", "ContactCardCallWork", "Assistant"},
+                        {"3A1B001E", "ContactCardCallWork", "Work 2"},
+                        {"3A24001E", null, "Business Fax"},
+                        {"3A08001E", "ContactCardCallWork", "Work"},
+                        {"3A02001E", null, "Callback"},
+                        {"3A1E001E", "ContactCardCallMobile", "Car"},
+                        {"3A57001E", "ContactCardCallWork", "Company"},
+                        {"3A2F001E", "ContactCardCallHome", "Home 2"},
+                        {"3A25001E", null, "Home Fax"},
+                        {"3A09001E", "ContactCardCallHome", "Home"},
+                        {"3A2D001E", null, "ISDN"},
+                        {"3A1C001E", "ContactCardCallMobile", "Mobile"},
+                        {"3A23001E", null, "Other Fax"},
+                        {"3A1F001E", null, "Other"},
+                        {"3A21001E", "ContactCardCallMobile", "Pager"},
+                        {"3A1A001E", "ContactCardCallHome", "Primary"},
+                        {"3A1D001E", "ContactCardCallMobile", "Radio"},
+                        {"3A2C001E", null, "Telex"},
+                        {"3A4B001E", null, "TTY/TDD"}};
 
         #endregion
 
