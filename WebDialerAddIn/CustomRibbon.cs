@@ -161,8 +161,13 @@ namespace Ianchi.WebDialerAddIn
                         {   //see if it also local
                             Outlook.MAPIFolder contactFolder = card.Application.Session.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);
                             contactOutlook = (Outlook.ContactItem)contactFolder.Items.Find(String.Format(
-                                                "[Email1Address]='{0}' or [Email2Address]='{0}' or [Email3Address]='{0}'",
-                                                contactExchange.PrimarySmtpAddress));
+                                                "([Email1AddressType]='SMTP' and [Email1Address]='{0}') or " +
+                                                "([Email2AddressType]='SMTP' and [Email2Address]='{0}') or " +
+                                                "([Email3AddressType]='SMTP' and [Email3Address]='{0}') or " +
+                                                "([Email1AddressType]='EX' and [Email1Address]='{1}') or " +
+                                                "([Email2AddressType]='EX' and [Email2Address]='{1}') or " +
+                                                "([Email3AddressType]='EX' and [Email3Address]='{1}')",
+                                                contactExchange.PrimarySmtpAddress, contactExchange.Address));
                         }
                     }
 
