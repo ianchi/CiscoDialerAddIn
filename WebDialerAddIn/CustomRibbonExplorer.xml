@@ -11,16 +11,23 @@
                    onChange="OnPhoneChange" getText="GetLastNumber"
                    
                    label="Dial" showLabel="false" showImage="false" />
-          <button id="Ianchi_Dialer_Speaker" label="Speaker on/off" imageMso="Call"  screentip="Speaker on/off"
-                  getEnabled="getEnabledCalls"
-                  onAction="Ianchi_Dialer_SendKey" tag="Speaker"/>
-          <dropDown id="Ianchi_Dialer_Profile" screentip="Select phone profile to use" 
-                    showImage="false" showLabel="false"
-                    getItemCount="GetProfileCount" getItemLabel="GetProfileLabel" getItemID="GetProfileID"
-                    onAction="OnSelectProfile" getSelectedItemIndex="GetSelectedProfileIndex"
-                    getEnabled="getEnabledProfile" getSupertip="GetProfileSupertip"
+
+          <buttonGroup id="Ianchi_Dialer_ButtonGroup">
+            <button id="Ianchi_Dialer_Speaker" label="Hook" imageMso="Call"  screentip="Hook on/off"
+                    getEnabled="getEnabledCalls" showLabel="true"
+                    onAction="Ianchi_Dialer_SendKey" tag="Hook"/>
+            <button id="Ianchi_Dialer_Mute" label="Mute" imageMso="SpeechMicrophone"  screentip="Mute on/off"
+                    getEnabled="getEnabledCalls" showLabel="true" 
+                    onAction="Ianchi_Dialer_SendKey" tag="Mute"/>
+          </buttonGroup>
+
+          <dropDown id="Ianchi_Dialer_Profile" screentip="Select phone profile to use"
+          showImage="false" showLabel="false"
+          getItemCount="GetProfileCount" getItemLabel="GetProfileLabel" getItemID="GetProfileID"
+          onAction="OnSelectProfile" getSelectedItemIndex="GetSelectedProfileIndex"
+          getEnabled="getEnabledProfile" getSupertip="GetProfileSupertip"
                     ></dropDown>
-                    
+          
           <dialogBoxLauncher  >
             <button id="IanchiDialer__btn" onAction="DialogLauncherClick" 
                     screentip="Cisco Dialer Add In for Outlook" supertip="Configure phone profiles"/>

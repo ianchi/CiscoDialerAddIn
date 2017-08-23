@@ -66,6 +66,7 @@ namespace Ianchi.WebDialerAddIn
         string _user;       // user name to login to the phone, same used to enter the CM user web   
         string _password;   // password to login to the phone, same used to enter the CM user web
         string _description;
+        string _hook;
 
         [NonSerialized]
         bool _checked = false;// true if the above parameters have been checked to work correctly with the phone
@@ -78,6 +79,7 @@ namespace Ianchi.WebDialerAddIn
         public string user { get { return _user; } set { _user = value; _checked = false; } }
         public string password { get { return _password; } set { _password = value; _checked = false; } }
         public string description { get { return _description; } set { _description = value; } }
+        public string hook { get { return _hook != null && _hook != "" ? _hook : "Speaker"; } set { _hook = value != null && value != "" ? value : "Speaker"; } }
 
         public bool isChecked { get { return _checked; } }
 
@@ -272,7 +274,9 @@ namespace Ianchi.WebDialerAddIn
             writer.WriteAttributeString("Name", _description);
             writer.WriteAttributeString("IP", _phoneIP);
             writer.WriteAttributeString("User", _user);
+            writer.WriteAttributeString("Hook", hook);
             writer.WriteElementString("Psw", Encrypt(_password));
+            
         }
 
         public void ReadXml(XmlReader reader)
@@ -281,6 +285,7 @@ namespace Ianchi.WebDialerAddIn
             _description = reader.GetAttribute("Name");
             _phoneIP = reader.GetAttribute("IP");
             _user = reader.GetAttribute("User");
+            hook = reader.GetAttribute("Hook");
             Boolean isEmptyElement = reader.IsEmptyElement; 
             reader.ReadStartElement();
             if (!isEmptyElement) 

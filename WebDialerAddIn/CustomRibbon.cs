@@ -217,8 +217,12 @@ namespace Ianchi.WebDialerAddIn
         {
             try
             {
-                if (control.Tag.Length > 0)
-                    Globals.WebDialerAddIn.sendKey(control.Tag);
+                if (control.Tag == "Hook")
+                {
+                    Globals.WebDialerAddIn.sendKey(Globals.WebDialerAddIn.phoneList.SelectedPhone.hook);
+                }
+                else if (control.Tag.Length > 0) { 
+                    Globals.WebDialerAddIn.sendKey(control.Tag); }
             }
             catch { }
 

@@ -174,6 +174,7 @@ namespace Ianchi.WebDialerAddIn
             txtUrl.DataBindings.Add(new Binding("Text", sourceProfile, "phoneIP"));
             txtUser.DataBindings.Add(new Binding("Text", sourceProfile, "user"));
             txtPassword.DataBindings.Add(new Binding("Text", sourceProfile, "password"));
+            txtHook.DataBindings.Add(new Binding("Text", sourceProfile, "hook"));
 
             testConnection();
             Dirty = false;
@@ -208,6 +209,7 @@ namespace Ianchi.WebDialerAddIn
             newPhone.user = txtUser.Text;
             newPhone.password = txtPassword.Text;
             newPhone.description = String.Format("New Profile N° {0}", phoneList.Count + 1);
+            newPhone.hook = txtHook.Text;
 
             return newPhone;
         }
